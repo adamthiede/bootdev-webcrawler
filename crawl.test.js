@@ -1,5 +1,5 @@
 import { test, expect } from "@jest/globals";
-import { normalizeURL } from "./crawl.js";
+import { normalizeURL, getURLsFromHTML } from "./crawl.js";
 
 const u1=normalizeURL("http://blog.boot.dev/posts/")
 const u2=normalizeURL("https://blog.boot.dev/posts")
@@ -26,4 +26,20 @@ test('no trailing slash v2', () => {
 
 test('strip most parameters', () => {
   expect(normalizeURL("rsync://user:password@github.com:2222/path?repo=test")=="github.com/path").toBe(true);
+});
+
+
+const hbody="<html><body><a href='http://blog.boot.dev/post/'><span>post!</span></a><a href='https://blog.boot.dev'><span>Go to Boot.dev</span></a><a href='http://adamthiede.com'>my site</a><a href='https://adamthiede.com/resume.html'>my resume</a><a href='post/good_post.html'>good post</a></body></html>";
+
+test('extract url 1', () => {
+    const operation = getURLsFromHTML(hbody, "https://blog.boot.dev");
+    const result = [
+        'http://blog.boot.dev/post/',
+        'https://blog.boot.dev/',
+        'http://adamthiede.com/',
+        'https://adamthiede.com/resume.html',
+        'https://blog.boot.dev/post/good_post.html'
+    ];
+    expect(operation[0]).toBe(result[0]);
+    expect(operation.length).toBe(result.length);
 });
