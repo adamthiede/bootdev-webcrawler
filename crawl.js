@@ -1,4 +1,3 @@
-//const { JSDOM } = import("jsdom");
 import {JSDOM} from 'jsdom';
 
 function normalizeURL(urlString){
@@ -31,4 +30,25 @@ function getURLsFromHTML(htmlBody, baseURL){
     return ret_arr;
 }
 
-export { normalizeURL, getURLsFromHTML };
+async function crawlPage(currentURL){
+    try {
+	const crawled=await fetch(currentURL);
+	if (crawled.status >= 400) {
+	    console.error(`Error fetching ${currentURL}: ${crawled.status}`);
+	    return;
+	}
+	else if (! crawled.headers.get("content-type").startsWith("text/html")) {
+	    console.error(`Error fetching ${currentURL}: wrong content-type ${crawled.headers.get("content-type")}`);
+	    return;
+	}
+	else {
+	    const text=await crawled.text();
+	    console.log(text);
+	}
+    }
+    catch(err) {
+	console.log(`${err.message}`);
+    }
+}
+
+export { normalizeURL, getURLsFromHTML, crawlPage };
