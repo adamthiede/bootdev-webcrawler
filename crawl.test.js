@@ -24,6 +24,10 @@ test('no trailing slash v2', () => {
   expect(normalizeURL("http://github.com/")=="github.com/").toBe(false);
 });
 
+test('sub path', () => {
+  expect(normalizeURL("http://github.com/user/repo/")=="github.com/user/repo").toBe(true);
+});
+
 test('strip most parameters', () => {
   expect(normalizeURL("rsync://user:password@github.com:2222/path?repo=test")=="github.com/path").toBe(true);
 });
@@ -42,4 +46,5 @@ test('extract url 1', () => {
     ];
     expect(operation[0]).toBe(result[0]);
     expect(operation.length).toBe(result.length);
+    expect(operation[4]).toBe(result[4]);
 });
