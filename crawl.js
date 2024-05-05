@@ -52,39 +52,35 @@ async function fetchParse(baseURL, currentURL) {
     return url_list;
 }
 
-async function crawlPage(baseURL, currentURL=baseURL, pages={}){
-    // try to fetch the html
+async function crawlPage(baseURL, currentURL=baseURL, pages=new Map()){
     if (new URL(baseURL).host != new URL(currentURL).host) {
-	console.log("Different hosts");
 	return pages;
     }
-
-    const nURL=normalizeURL(baseURL);
-    if ( pages[nURL] > 0 ){
-	pages[nURL]=pages[nURL]+1;
-    }
     else {
-	pages[nURL]=1;
-    }
 
-    const links=await fetchParse(baseURL, currentURL);
-    //console.log(links);
-    if (links.length>0) {
-
-	for (const link of links) {
-	    if ( pages[link] > 0 ){
-		pages[link]=pages[nURL]+1;
-	    }
-	    else {
-		pages[link]=1;
-		pages = await crawlPage(baseURL,link,pages);
-	    }
-	    console.log(pages);
+	const nURL=normalizeURL(baseURL);
+	if ( pages.get(nURL) > 0 ){
+	    pages.set(nURL,pages.get(nURL)+1);
 	}
+	else {
+	    pages.set(nURL,1);
+	}
+
+	const links=await fetchParse(baseURL, currentURL);
+	if (links.length>0) {
+
+	    for (const link of links) {
+		if ( pages.get(link) > 0 ){
+		    pages.set(link,pages.get(nURL)+1);
+		}
+		else {
+		    pages.set(link, 1);
+		    pages = await crawlPage(baseURL,link,pages);
+		}
+	    }
+	}
+	return pages;
     }
-
-
-    return pages;
 }
 
 export { normalizeURL, getURLsFromHTML, crawlPage };
